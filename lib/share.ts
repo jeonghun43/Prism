@@ -11,7 +11,7 @@ export function shareToKakaoTalk(url: string, title: string, description: string
       content: {
         title,
         description,
-        imageUrl: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/api/og?nickname=${encodeURIComponent(title)}`,
+        // 이미지 제거 - 이미지 없이 공유
         link: {
           mobileWebUrl: url,
           webUrl: url,

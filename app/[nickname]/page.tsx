@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://prism.me'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL
   const pageUrl = `${appUrl}/${encodeURIComponent(nickname)}`
 
   return {
@@ -53,20 +53,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: pageUrl,
       siteName: 'Prism',
       type: 'website',
-      images: [
-        {
-          url: `${appUrl}/api/og?nickname=${encodeURIComponent(nickname)}`,
-          width: 1200,
-          height: 630,
-          alt: `${nickname}의 Prism`,
-        },
-      ],
     },
     twitter: {
-      card: 'summary_large_image',
+      card: 'summary',
       title: `${nickname}의 매력을 알려주세요!`,
       description: `${nickname}의 매력을 발견하는 데 도움을 주세요!`,
-      images: [`${appUrl}/api/og?nickname=${encodeURIComponent(nickname)}`],
     },
   }
 }

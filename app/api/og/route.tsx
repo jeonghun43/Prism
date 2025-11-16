@@ -21,68 +21,59 @@ export async function GET(request: NextRequest) {
     nickname = 'Prism'
   }
 
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          height: '100%',
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#fef3f2',
-          backgroundImage: 'linear-gradient(to bottom right, #fef3f2, #f3e8ff, #eef2ff)',
-        }}
-      >
+  try {
+    return new ImageResponse(
+      (
         <div
           style={{
+            height: '100%',
+            width: '100%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '80px',
+            backgroundColor: '#ffffff',
           }}
         >
           <div
             style={{
-              fontSize: 72,
-              fontWeight: 'bold',
-              background: 'linear-gradient(to right, #ec4899, #a855f7, #6366f1)',
-              backgroundClip: 'text',
-              color: 'transparent',
-              marginBottom: 24,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            Prism
-          </div>
-          <div
-            style={{
-              fontSize: 48,
-              fontWeight: 'bold',
-              color: '#1f2937',
-              marginBottom: 16,
-              textAlign: 'center',
-            }}
-          >
-            {nickname}의 매력을 알려주세요!
-          </div>
-          <div
-            style={{
-              fontSize: 24,
-              color: '#6b7280',
-              textAlign: 'center',
-            }}
-          >
-            익명으로 긍정적인 피드백을 남겨보세요
+            <div
+              style={{
+                fontSize: 96,
+                fontWeight: 'bold',
+                color: '#000000',
+                marginBottom: 32,
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+              }}
+            >
+              Prism
+            </div>
+            <div
+              style={{
+                fontSize: 32,
+                color: '#6b7280',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+              }}
+            >
+              나만의 매력 스펙트럼을 발견하다
+            </div>
           </div>
         </div>
-      </div>
-    ),
-    {
-      width: 1200,
-      height: 630,
-    }
-  )
+      ),
+      {
+        width: 1200,
+        height: 630,
+      }
+    )
+  } catch (error) {
+    console.error('OG image generation error:', error)
+    return new Response('Image generation failed', { status: 500 })
+  }
 }
 
