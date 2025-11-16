@@ -43,6 +43,8 @@ export default function VotingInterface({ userId, questions, nickname }: VotingI
     currentIndexRef.current = currentIndex
     // Reset visual selection when question changes
     setVisualSelectedOption(null)
+    // Clear touch handling state for new question
+    touchHandledRef.current = {}
   }, [currentIndex])
 
   // Generate a unique session ID for this voting session
@@ -234,8 +236,9 @@ export default function VotingInterface({ userId, questions, nickname }: VotingI
     )
   }
 
-  // Use visual selection state for display, fallback to saved selection for navigation
-  const displaySelectedOption = visualSelectedOption ?? selectedOptions[currentQuestion.id]
+  // Only use visual selection state - don't fallback to saved options
+  // This ensures each question starts with no visual selection
+  const displaySelectedOption = visualSelectedOption
 
   return (
     <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border-2 border-teal-200">
@@ -261,7 +264,7 @@ export default function VotingInterface({ userId, questions, nickname }: VotingI
         <div className="space-y-2 sm:space-y-3">
           {currentQuestion.options.map((option) => (
             <button
-              key={option.id}
+              key={`q${currentQuestion.id}-opt${option.id}`}
               onClick={(e) => {
                 // Prevent click if touch event was already handled (mobile browsers fire click after touch)
                 if (touchHandledRef.current[option.id]) {
