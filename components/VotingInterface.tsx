@@ -28,6 +28,7 @@ const charmKeywords = [
 export default function VotingInterface({ userId, questions, nickname }: VotingInterfaceProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedOptions, setSelectedOptions] = useState<Record<string, number>>({})
+  const [visualSelectedOption, setVisualSelectedOption] = useState<number | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isComplete, setIsComplete] = useState(false)
   const [charmKeyword, setCharmKeyword] = useState<string>('')
@@ -35,10 +36,15 @@ export default function VotingInterface({ userId, questions, nickname }: VotingI
   const supabase = createClient()
   const currentIndexRef = useRef(currentIndex)
   const voterSessionIdRef = useRef<string | null>(null)
+  const touchHandledRef = useRef<Record<number, boolean>>({})
   
   // Keep ref in sync with state
   useEffect(() => {
     currentIndexRef.current = currentIndex
+    // Reset visual selection when question changes
+    setVisualSelectedOption(null)
+    // Clear touch handling state for new question
+    touchHandledRef.current = {}
   }, [currentIndex])
 
   // Generate a unique session ID for this voting session
@@ -51,8 +57,11 @@ export default function VotingInterface({ userId, questions, nickname }: VotingI
   const currentQuestion = questions[currentIndex]
   const progress = questions.length > 0 ? (currentIndex / questions.length) * 100 : 0
 
-  const handleOptionSelect = (optionId: number) => {
+  const handleOptionSelect = (optionId: number, isTouchEvent: boolean = false) => {
     if (!currentQuestion || isSubmitting) return
+    
+    // Set visual selection immediately
+    setVisualSelectedOption(optionId)
     
     // Update selected option
     const updatedOptions = {
@@ -67,6 +76,7 @@ export default function VotingInterface({ userId, questions, nickname }: VotingI
       if (currentIdx < questions.length - 1) {
         // Move to next question
         setCurrentIndex(currentIdx + 1)
+        // Visual selection will be cleared by useEffect when currentIndex changes
       } else {
         // Last question - auto submit
         handleSubmitWithOptions(updatedOptions)
@@ -226,7 +236,9 @@ export default function VotingInterface({ userId, questions, nickname }: VotingI
     )
   }
 
-  const selectedOption = selectedOptions[currentQuestion.id]
+  // Only use visual selection state - don't fallback to saved options
+  // This ensures each question starts with no visual selection
+  const displaySelectedOption = visualSelectedOption
 
   return (
     <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border-2 border-teal-200">
@@ -252,13 +264,37 @@ export default function VotingInterface({ userId, questions, nickname }: VotingI
         <div className="space-y-2 sm:space-y-3">
           {currentQuestion.options.map((option) => (
             <button
-              key={option.id}
-              onClick={() => handleOptionSelect(option.id)}
-              className={`w-full text-left p-3 sm:p-4 rounded-lg border-2 transition-all text-sm sm:text-base ${
-                selectedOption === option.id
+              key={`q${currentQuestion.id}-opt${option.id}`}
+              onClick={(e) => {
+                // Prevent click if touch event was already handled (mobile browsers fire click after touch)
+                if (touchHandledRef.current[option.id]) {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  touchHandledRef.current[option.id] = false
+                  return
+                }
+                handleOptionSelect(option.id)
+              }}
+              onTouchStart={() => {
+                touchHandledRef.current[option.id] = false
+              }}
+              onTouchEnd={(e) => {
+                // Prevent default to avoid mobile browser highlight persistence
+                e.preventDefault()
+                e.stopPropagation()
+                touchHandledRef.current[option.id] = true
+                handleOptionSelect(option.id, true)
+                // Reset after a short delay to allow click event to check
+                setTimeout(() => {
+                  touchHandledRef.current[option.id] = false
+                }, 300)
+              }}
+              className={`w-full text-left p-3 sm:p-4 rounded-lg border-2 transition-all text-sm sm:text-base touch-manipulation ${
+                displaySelectedOption === option.id
                   ? 'border-teal-500 bg-teal-50 text-teal-700 font-semibold'
-                  : 'border-gray-200 hover:border-teal-500 hover:bg-teal-50 text-gray-900 bg-white'
+                  : 'border-gray-200 hover:border-teal-500 hover:bg-teal-50 text-gray-900 bg-white active:bg-teal-50'
               }`}
+              style={{ WebkitTapHighlightColor: 'transparent' }}
             >
               {option.text}
             </button>

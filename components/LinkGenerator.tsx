@@ -9,7 +9,7 @@ import { validateNickname, sanitizeNickname } from '@/lib/security'
 // Set NEXT_PUBLIC_CONTACT_EMAIL environment variable to customize
 const CONTACT_EMAIL = (typeof window !== 'undefined' && (window as any).__NEXT_DATA__?.env?.NEXT_PUBLIC_CONTACT_EMAIL) || 
                       process.env.NEXT_PUBLIC_CONTACT_EMAIL || 
-                      'prism@gmail.com'
+                      'jeongbzn01@gmail.com'
 
 export default function LinkGenerator() {
   const [nickname, setNickname] = useState('')
@@ -150,7 +150,7 @@ export default function LinkGenerator() {
           </p>
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
             <p className="text-xs sm:text-sm text-amber-800">
-              ⚠️ 7일 이후 링크는 자동으로 삭제되며, 유지하기 위해서는{' '}
+              ⚠️생성 후 7일이 지나면 링크와 응답 데이터는 자동으로 삭제됩니다. 유지하기 위해서는{' '}
               <a 
                 href={`mailto:${CONTACT_EMAIL}`}
                 className="underline font-semibold hover:text-amber-900"
